@@ -1,0 +1,27 @@
+{
+  "name": "socialmedia",
+  "version": "1.0.0",
+  "description": "backend logic for social media app",
+  "homepage": "https://github.com/bdhanush-pxl/socialmedia-app-backend#readme",
+  "bugs": {
+    "url": "https://github.com/bdhanush-pxl/socialmedia-app-backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bdhanush-pxl/socialmedia-app-backend.git"
+  },
+  "license": "ISC",
+  "author": "dhanush",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.2"
+  }
+}
