@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+import mongoose, {Schema} from "mongoose";
 
 const messageSchema = new Schema({
     senderId: {
@@ -21,7 +20,7 @@ const messageSchema = new Schema({
 }, { timestamps: true });
 
 const Message = mongoose.model('Message', messageSchema);
-module.exports = Message;
+export default Message;
 // This code defines a Mongoose schema and model for a messaging system.
 //  The schema includes fields for the sender's ID, receiver's ID, the message text,
 //  and a timestamp for when the message was created. 

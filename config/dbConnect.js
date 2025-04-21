@@ -1,8 +1,12 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import colors from 'colors';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { ApiError } from '../utils/ApiError.js';
+
+dotenv.config();
+
 const DB_URI = process.env.MONGODB_URI;
-const {asyncHandler} = require('./utils/asyncHandler.js');
-const {ApiError} = require('./utils/ApiError.js');
 
 const connectDB = asyncHandler(async () =>{
     try {
@@ -13,4 +17,4 @@ const connectDB = asyncHandler(async () =>{
     }
 })
 
-module.exports = connectDB;
+export { connectDB };

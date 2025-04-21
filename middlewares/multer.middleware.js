@@ -1,14 +1,17 @@
-const multer = require("multer")
+import multer from 'multer';
+import path from 'path';
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, "./public/temp")
+        const tempDir = path.resolve('public', 'temp'); // Dynamically resolve the path
+        console.log("Saving file to:", tempDir); // Log the resolved path
+        cb(null, tempDir);
     },
     filename: function (req, file, cb) {
-      
-      cb(null, file.originalname)
+        console.log("File name:", file.originalname); // Log the file name
+        cb(null, file.originalname);
     }
-  })
-  
-const upload = multer({ storage: storage })
-module.exports = upload.single("file")
+});
+
+const upload = multer({ storage: storage });
+export default upload.single('file');
