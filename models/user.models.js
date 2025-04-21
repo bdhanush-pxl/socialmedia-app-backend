@@ -47,6 +47,10 @@ const userSchema = new Schema({
     profilePicture: {
         type: String,
         default: "https://res.cloudinary.com/dqj0v1x2g/image/upload/v1698236484/blank-profile-picture-973460_640_ojxk5c.png"
+    },
+    bio: {
+        type: String,
+        default: "Hey there! I am using this app."
     }
 },{ timestamps: true });
 
