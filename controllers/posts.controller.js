@@ -1,6 +1,5 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
-import User from "../models/user.models.js"
 import Post from "../models/posts.models.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -27,6 +26,7 @@ const createPost = asyncHandler(async (req, res) => {
         postedBy: userId,
         postDescription: description,
         postImage: postImageUrl || null,
+        likes: []
     });
 
     return res.status(201).json(new ApiResponse(201, post, "Post created successfully"));
@@ -98,34 +98,44 @@ const deletePost = asyncHandler(async (req, res) => {
     if (post.postedBy.toString() !== userId.toString()) {
         throw new ApiError(403, "You are not authorized to delete this post");
     }
-    await post.remove();
+    await post.deleteOne();
     return res.status(200).json(new ApiResponse(200, null, "Post deleted successfully"));
 });
 
 const likePost = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
     const { postId } = req.params;
     const post = await Post.findById(postId);
     if (!post) {
         throw new ApiError(404, "Post not found");
     }
+    if (!Array.isArray(post.likes)) {
+        post.likes = [];
+    }
     if (post.likes.includes(userId)) {
         throw new ApiError(400, "You have already liked this post");
     }
-    post.likes += 1;
+    post.likes.push(userId);
     await post.save();
     return res.status(200).json(new ApiResponse(200, null, "Post liked successfully"));
 });
 
 const unlikePost = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
     const { postId } = req.params;
     const post = await Post.findById(postId);
     if (!post) {
         throw new ApiError(404, "Post not found");
     }
-    if (post.likes > 0) {
-        post.likes -= 1; // Decrement the likes count
-        await post.save();
+    if (!Array.isArray(post.likes)) {
+        post.likes = [];
     }
+    if (!post.likes.includes(userId)) {
+        throw new ApiError(400, "You have not liked this post");
+    }
+
+    post.likes = post.likes.filter(id => id.toString() !== userId.toString()); // Remove userId from likes array
+    await post.save();
     return res.status(200).json(new ApiResponse(200, null, "Post unliked successfully"));
 });
 
