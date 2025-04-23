@@ -51,7 +51,11 @@ const userSchema = new Schema({
     bio: {
         type: String,
         default: "Hey there! I am using this app."
-    }
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false, // Regular users are not admins by default
+    },
 },{ timestamps: true });
 
 userSchema.methods.isPasswordCorrect = async function(password){

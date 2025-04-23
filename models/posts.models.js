@@ -37,6 +37,14 @@ const postSchema = new Schema({
             }
         }
     ],
+    isPaid: {
+        type: Boolean,
+        default: false,
+    },
+    price: {
+        type: Number,
+        default: 0, // Price in USD or your preferred currency
+    },    
     createdAt: {
         type: Date,
         default: Date.now

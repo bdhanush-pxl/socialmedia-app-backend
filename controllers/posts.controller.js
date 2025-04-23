@@ -8,11 +8,9 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const createPost = asyncHandler(async (req, res) => {
     const userId = req.user._id;
     const { description } = req.body;
-
     if (!description && !req.file) {
         throw new ApiError(400, "Post must contain either text or an image");
     }
-
     let postImageUrl;
     if (req.file) {
         const uploadResult = await uploadOnCloudinary(req.file.path);
@@ -21,14 +19,12 @@ const createPost = asyncHandler(async (req, res) => {
         }
         postImageUrl = uploadResult.url;
     }
-
     const post = await Post.create({
         postedBy: userId,
         postDescription: description,
         postImage: postImageUrl || null,
         likes: []
     });
-
     return res.status(201).json(new ApiResponse(201, post, "Post created successfully"));
 });
 

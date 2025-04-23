@@ -6,6 +6,8 @@ import { connectDB } from './config/dbConnect.js';
 import userRoutes from './routes/user.routes.js';
 import postRoutes from './routes/post.routes.js';
 import messageRoutes from './routes/message.routes.js';
+import reportRoutes from "./routes/report.routes.js";
+import adminRoutes from './routes/admin.routes.js';
 
 dotenv.config();
 
@@ -25,6 +27,8 @@ connectDB();
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/messages', messageRoutes);
+app.use("/api/reports", reportRoutes);
+app.use('/api/admin', adminRoutes);
 
 
 
