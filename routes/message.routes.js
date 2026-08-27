@@ -7,11 +7,12 @@ import {
     markMessageAsRead,
 } from '../controllers/messages.controller.js';
 import { verifyJWT } from '../middlewares/auth.middleware.js';
+import { messageLimiter } from '../middlewares/rateLimit.middleware.js';
 
 const messageRoutes = express.Router();
 
 // Send a message
-messageRoutes.route('/').post(verifyJWT, sendMessage);
+messageRoutes.route('/').post(verifyJWT, messageLimiter, sendMessage);
 
 // Get messages between two users
 messageRoutes.route('/conversation').get(verifyJWT, getMessages);

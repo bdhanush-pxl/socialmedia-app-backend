@@ -2,15 +2,18 @@ import express from 'express';
 import upload from '../middlewares/multer.middleware.js';
 import { registerUser,loginUser,logoutUser,changePassword,changeProfilePicture,refreshAccessToken,getCurrentUser,updateUserDetails,followUser,unfollowUser,getFollowers,deleteUserAccount,searchUsers } from '../controllers/user.controller.js';
 import { verifyJWT } from '../middlewares/auth.middleware.js';
+import { authLimiter } from '../middlewares/rateLimit.middleware.js';
 
 const userRoutes = express.Router();
 
 userRoutes.route("/register").post(
+    authLimiter,
     upload,  // Multer middleware
     registerUser
 );
 
 userRoutes.route("/login").post(
+    authLimiter,
     loginUser
 );
 

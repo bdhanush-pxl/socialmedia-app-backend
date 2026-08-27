@@ -3,6 +3,7 @@ import {ApiError} from "../utils/ApiError.js"
 import Post from "../models/posts.models.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { getCached, setCached, invalidatePostCache } from "../config/redis.js";
 
 
 const createPost = asyncHandler(async (req, res) => {
@@ -25,11 +26,17 @@ const createPost = asyncHandler(async (req, res) => {
         postImage: postImageUrl || null,
         likes: []
     });
+    await invalidatePostCache();
     return res.status(201).json(new ApiResponse(201, post, "Post created successfully"));
 });
 
 const getAllPosts = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
+    const cacheKey = `posts:list:${page}:${limit}`;
+    const cachedPosts = await getCached(cacheKey);
+    if (cachedPosts) {
+        return res.status(200).json(cachedPosts);
+    }
 
     const posts = await Post.find()
         .populate("postedBy", "username profilePicture")
@@ -37,16 +44,26 @@ const getAllPosts = asyncHandler(async (req, res) => {
         .skip((page - 1) * limit)
         .limit(parseInt(limit));
 
-    return res.status(200).json(new ApiResponse(200, posts, "Posts fetched successfully"));
+    const response = new ApiResponse(200, posts, "Posts fetched successfully");
+    await setCached(cacheKey, response);
+    return res.status(200).json(response);
 });
 
 const getPostById = asyncHandler(async (req, res) => {
     const { postId } = req.params;
+    const cacheKey = `posts:${postId}`;
+    const cachedPost = await getCached(cacheKey);
+    if (cachedPost) {
+        return res.status(200).json(cachedPost);
+    }
+
     const post = await Post.findById(postId).populate("postedBy", "username profilePicture");
     if (!post) {
         throw new ApiError(404, "Post not found");
     }
-    return res.status(200).json(new ApiResponse(200, post, "Post fetched successfully"));
+    const response = new ApiResponse(200, post, "Post fetched successfully");
+    await setCached(cacheKey, response);
+    return res.status(200).json(response);
 });
 
 const updatePost = asyncHandler(async (req, res) => {
@@ -78,6 +95,7 @@ const updatePost = asyncHandler(async (req, res) => {
         post.postDescription = description;
     }
     await post.save();
+    await invalidatePostCache(postId);
     return res.status(200).json(new ApiResponse(200, post, "Post updated successfully"));
 });
 
@@ -95,6 +113,7 @@ const deletePost = asyncHandler(async (req, res) => {
         throw new ApiError(403, "You are not authorized to delete this post");
     }
     await post.deleteOne();
+    await invalidatePostCache(postId);
     return res.status(200).json(new ApiResponse(200, null, "Post deleted successfully"));
 });
 
@@ -113,6 +132,7 @@ const likePost = asyncHandler(async (req, res) => {
     }
     post.likes.push(userId);
     await post.save();
+    await invalidatePostCache(postId);
     return res.status(200).json(new ApiResponse(200, null, "Post liked successfully"));
 });
 
@@ -132,6 +152,7 @@ const unlikePost = asyncHandler(async (req, res) => {
 
     post.likes = post.likes.filter(id => id.toString() !== userId.toString()); // Remove userId from likes array
     await post.save();
+    await invalidatePostCache(postId);
     return res.status(200).json(new ApiResponse(200, null, "Post unliked successfully"));
 });
 
@@ -155,6 +176,7 @@ const commentOnPost = asyncHandler(async (req, res) => {
         createdAt: new Date(),
     });
     await post.save();
+    await invalidatePostCache(postId);
     return res.status(200).json(new ApiResponse(200, post.comments, "Comment added successfully"));
 });
 
@@ -174,6 +196,7 @@ const deleteComment = asyncHandler(async (req, res) => {
     }
     post.comments = post.comments.filter(c => c._id.toString() !== commentId);
     await post.save();
+    await invalidatePostCache(postId);
     return res.status(200).json(new ApiResponse(200, null, "Comment deleted successfully"));
 });
 
