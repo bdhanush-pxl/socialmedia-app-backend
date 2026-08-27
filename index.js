@@ -8,6 +8,8 @@ import postRoutes from './routes/post.routes.js';
 import messageRoutes from './routes/message.routes.js';
 import reportRoutes from "./routes/report.routes.js";
 import adminRoutes from './routes/admin.routes.js';
+import { connectRedis } from './config/redis.js';
+import { apiLimiter } from './middlewares/rateLimit.middleware.js';
 
 dotenv.config();
 
@@ -19,9 +21,11 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
 app.use(cookieParser());
+app.use('/api', apiLimiter);
 
 // Connect to MongoDB
 connectDB();
+connectRedis();
 
 // Import routes
 app.use('/api/users', userRoutes);
